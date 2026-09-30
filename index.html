@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שעות 7-8 | דרכא בית ירח</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗓️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FA; --surface:#FFFFFF; --ink:#1E2433; --muted:#5E6679; --line:#DCE1EB;
+  --accent:#2F4A9E; --accent-ink:#FFFFFF; --today:#F2B705;
+  --g-t:#F4DCE6; --g-y:#E4DEF3; --g-ya:#D5E5F6; --g-yb:#DCECD4;
+  --g-t-s:#B64A76; --g-y-s:#6A55B0; --g-ya-s:#2F6FB0; --g-yb-s:#4E8A3A;
+  --radius-lg:18px; --radius-sm:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151D; --surface:#1B202B; --ink:#E9ECF3; --muted:#9AA3B6; --line:#2C3342;
+    --accent:#8FA8F5; --accent-ink:#12151D; --today:#F2B705;
+    --g-t:#3A2430; --g-y:#2D2842; --g-ya:#1F3044; --g-yb:#253522;
+    --g-t-s:#EE93B8; --g-y-s:#B7A6F0; --g-ya-s:#8CC0F0; --g-yb-s:#9DD088;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151D; --surface:#1B202B; --ink:#E9ECF3; --muted:#9AA3B6; --line:#2C3342;
+  --accent:#8FA8F5; --accent-ink:#12151D;
+  --g-t:#3A2430; --g-y:#2D2842; --g-ya:#1F3044; --g-yb:#253522;
+  --g-t-s:#EE93B8; --g-y-s:#B7A6F0; --g-ya-s:#8CC0F0; --g-yb-s:#9DD088;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Rubik","Assistant","Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.5}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+
+/* header */
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.title h1{margin:0;font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.5px;line-height:1.05}
+.title p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.tabs{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tabs button{border:0;background:none;padding:8px 16px;border-radius:999px;font-weight:500;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+
+/* week strip - the signature element */
+.weekbar{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px 12px 12px;margin-bottom:18px}
+.weekhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px 10px}
+.weekhead h2{margin:0;font-size:20px;font-weight:700}
+.weekhead .sub{color:var(--muted);font-size:14px}
+.navbtns{display:flex;gap:6px}
+.navbtns button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 12px;font-weight:500}
+.navbtns button:disabled{opacity:.35;cursor:default}
+.strip{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin}
+.wk{flex:0 0 auto;min-width:58px;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:6px 6px 5px;text-align:center;position:relative}
+.wk .d{display:block;font-size:13px;font-weight:500}
+.wk .t{display:block;font-size:12px;color:var(--muted)}
+.wk.B{background:transparent;border-style:dashed}
+.wk[aria-current="true"]{background:var(--accent);border-color:var(--accent);border-style:solid;color:var(--accent-ink)}
+.wk[aria-current="true"] .t{color:inherit;opacity:.8}
+.wk.now::after{content:"";position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--today);border:2px solid var(--surface)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:6px 4px 0}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:3px;border:1px solid var(--line);vertical-align:middle;margin-left:5px;background:var(--bg)}
+.legend i.b{border-style:dashed;background:transparent}
+.legend i.n{background:var(--today);border:0;width:8px;height:8px;border-radius:50%}
+
+/* class picker */
+.picker{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px;margin-bottom:18px}
+.grades{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.grades button{border:0;border-radius:10px;padding:7px 16px;font-weight:700;font-size:17px;background:var(--bg);color:var(--muted)}
+.grades button[aria-pressed="true"]{color:var(--ink);background:var(--gc);box-shadow:inset 0 -3px 0 var(--gs)}
+.nums{display:flex;gap:6px;flex-wrap:wrap}
+.nums button{min-width:44px;height:40px;border:1px solid var(--line);background:var(--bg);border-radius:10px;font-weight:500}
+.nums button[aria-pressed="true"]{background:var(--gs);border-color:var(--gs);color:var(--surface);font-weight:700}
+.g-ט{--gc:var(--g-t);--gs:var(--g-t-s)} .g-י{--gc:var(--g-y);--gs:var(--g-y-s)}
+.g-יא{--gc:var(--g-ya);--gs:var(--g-ya-s)} .g-יב{--gc:var(--g-yb);--gs:var(--g-yb-s)}
+
+/* class week */
+.classhead{display:flex;align-items:baseline;gap:12px;margin:0 4px 12px;flex-wrap:wrap}
+.classhead h3{margin:0;font-size:26px;font-weight:800}
+.classhead span{color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;min-height:140px;display:flex;flex-direction:column;gap:8px}
+.day.today{border:2px solid var(--today)}
+.day header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:6px}
+.day header b{font-size:17px}
+.day header small{color:var(--muted)}
+.day .empty{color:var(--muted);font-size:14px;margin:auto 0}
+.lesson{background:var(--gc);border-radius:10px;padding:8px 10px;border-right:4px solid var(--gs)}
+.lesson .s{font-weight:700;font-size:16px;line-height:1.25}
+.lesson .tt{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.tchip{border:0;background:var(--surface);border-radius:999px;padding:1px 9px;font-size:13px}
+.tchip:hover{text-decoration:underline}
+.freq{display:inline-block;font-size:12px;color:var(--muted);margin-top:4px}
+.badge-today{background:var(--today);color:#1E2433;font-size:12px;font-weight:700;border-radius:999px;padding:0 8px}
+
+/* grid */
+.gridwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg)}
+table.grid{table-layout:fixed;border-collapse:separate;border-spacing:0;width:100%;min-width:760px;font-size:14px}
+.grid th,.grid td{border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:6px 8px;vertical-align:middle;text-align:center}
+.grid thead th{position:sticky;top:0;background:var(--surface);z-index:2;font-weight:700}
+.grid thead th small{display:block;color:var(--muted);font-weight:400}
+.grid th.today{box-shadow:inset 0 -3px 0 var(--today)}
+.grid td.today{background-image:linear-gradient(color-mix(in srgb,var(--today) 10%,transparent),color-mix(in srgb,var(--today) 10%,transparent))}
+.grid th.cls{position:sticky;right:0;z-index:1;background:var(--gc);width:70px;white-space:nowrap}
+.grid thead th.cls{z-index:3;background:var(--surface)}
+.grid tr.gsep th{background:var(--gc);text-align:right;font-size:16px;padding:8px 12px;position:sticky;right:0}
+.grid td.has{background:var(--gc)}
+.grid td .s{font-weight:700;display:block}
+.grid td .tt{color:var(--muted);font-size:13px}
+.grid td .one+.one{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+.gfilter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.gfilter button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:500}
+.gfilter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* search */
+.searchbox{display:flex;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:10px;margin-bottom:12px}
+.searchbox input{flex:1;border:0;background:transparent;font-size:18px;padding:6px 8px;min-width:0}
+.searchbox input:focus{outline:none}
+.searchbox:focus-within{border-color:var(--accent)}
+.searchbox button{border:0;background:var(--bg);border-radius:10px;padding:0 14px}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.quick button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:14px}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.res{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;border-top:5px solid var(--gs)}
+.res .s{font-weight:700;font-size:17px}
+.res .meta{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.pill{background:var(--gc);border-radius:999px;padding:1px 10px;font-size:13px;font-weight:500}
+.res .tt{font-size:14px;color:var(--muted)}
+.res mark{background:color-mix(in srgb,var(--today) 45%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.res .next{font-size:14px;margin-top:6px}
+.res details{margin-top:6px;font-size:13px;color:var(--muted)}
+.res details summary{cursor:pointer}
+.res details .dates{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.res details .dates span{border:1px solid var(--line);border-radius:6px;padding:0 6px}
+.res details .dates span.past{opacity:.45;text-decoration:line-through}
+.count{color:var(--muted);margin:0 4px 10px;font-size:14px}
+.emptystate{background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius-lg);padding:28px;text-align:center;color:var(--muted)}
+
+.note{font-size:13px;color:var(--muted);margin-top:18px;text-align:center}
+[hidden]{display:none !important}
+
+@media (max-width:760px){
+  .days{grid-template-columns:1fr}
+  .day{min-height:0}
+  .day .empty{margin:0}
+  header.top{align-items:stretch}
+  .tabs{width:100%}
+  .tabs button{flex:1;padding:8px 6px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .days .day,.results .res{animation:rise .25s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title">
+      <h1>שעות 7-8</h1>
+      <p>שביעיות ושמיניות, מחצית א׳ | 4.10 עד 28.1</p>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="תצוגה">
+      <button role="tab" data-view="class">הכיתה שלי</button>
+      <button role="tab" data-view="grid">לוח שבועי</button>
+      <button role="tab" data-view="search">חיפוש מורה או מקצוע</button>
+    </nav>
+  </header>
+
+  <section class="weekbar" id="weekbar" aria-label="בחירת שבוע">
+    <div class="weekhead">
+      <div>
+        <h2 id="weekTitle"></h2>
+        <div class="sub" id="weekSub"></div>
+      </div>
+      <div class="navbtns">
+        <button id="prevW" aria-label="שבוע קודם">הקודם</button>
+        <button id="nowW">השבוע</button>
+        <button id="nextW" aria-label="שבוע הבא">הבא</button>
+      </div>
+    </div>
+    <div class="strip" id="strip"></div>
+    <div class="legend">
+      <span><i></i>שבוע א׳</span>
+      <span><i class="b"></i>שבוע ב׳</span>
+      <span><i class="n"></i>השבוע הנוכחי</span>
+    </div>
+  </section>
+
+  <main>
+    <section id="v-class" hidden>
+      <div class="picker" id="picker"></div>
+      <div class="classhead"><h3 id="clsName"></h3><span id="clsSub"></span></div>
+      <div class="days" id="days"></div>
+    </section>
+
+    <section id="v-grid" hidden>
+      <div class="gfilter" id="gfilter"></div>
+      <div class="gridwrap"><table class="grid" id="grid"></table></div>
+    </section>
+
+    <section id="v-search" hidden>
+      <div class="searchbox">
+        <input id="q" type="search" list="suggest" placeholder="שם מורה או מקצוע, למשל: סמדר, ספרות, אנגלית" autocomplete="off" aria-label="חיפוש">
+        <button id="clearQ" aria-label="ניקוי חיפוש">ניקוי</button>
+      </div>
+      <datalist id="suggest"></datalist>
+      <div class="quick" id="quick"></div>
+      <div class="count" id="count"></div>
+      <div class="results" id="results"></div>
+    </section>
+  </main>
+
+  <p class="note">הנתונים מתוך מסמך "שביעיות שמיניות". שבועות א׳ ו־ב׳ מתחלפים; שכבת יב זהה בכל השבועות.</p>
+</div>
+
+<script>
+/* ============ נתונים ============ */
+// שבוע ראשון: יום ראשון 4.10.2026. 17 שבועות, מתחלפים א/ב.
+const START = new Date(2026, 9, 4);
+const WEEKS = 17;
+const DAYS = ['ראשון','שני','שלישי','רביעי','חמישי'];
+const GRADE_ORDER = ['ט','י','יא','יב'];
+const r = (a,b) => Array.from({length:b-a+1}, (_,i)=>a+i);
+
+// סדר הכיתות כמו במסמך המקורי (חשוב למיזוג תאים בלוח)
+const CLASSES = {
+  'ט':  r(2,10),
+  'י':  [1,11,2,3,4,5,6,7,8,9,10],
+  'יא': [1,11,2,3,4,5,6,7,8,9,10],
+  'יב': [1,2,3,10,4,5,6,7,8,9]
+};
+
+// pattern: 'all' = כל שבוע, 'A' = שבוע א׳ בלבד, 'B' = שבוע ב׳ בלבד
+// day: 0=ראשון ... 4=חמישי
+const Y1 = [1,11,2,3], Y2 = r(4,10);
+const YA1 = [1,11,2,3], YA2 = r(4,10);
+const YB1 = [1,2,3,10], YB2 = r(4,9);
+const S = (grade, classes, day, pattern, subject, teachers=[]) => ({grade, classes, day, pattern, subject, teachers});
+
+const SESSIONS = [
+  // ---- ט ----
+  S('ט', r(2,10), 2, 'all', 'מתמטיקה', ['אלה גלוזשטיין','רוני דולב','הילה בן צור']),
+
+  // ---- י ----
+  S('י', Y1, 0, 'all', 'תקשורת הפקות', ['עומר בן נאים','מיכל גרוס']),
+  S('י', Y1, 0, 'A',   'מדעי הסביבה', ['אהד כהן']),
+  S('י', Y1, 1, 'A',   'פסיכולוגיה', ['יפעת וורטהיים']),
+  S('י', Y1, 3, 'A',   'תיירות', ['דניאל ליסי']),
+  S('י', Y2, 1, 'all', 'מתמטיקה 4-5', ['אלונה','רונית','אלה','אופיר','נעמי','הדר']),
+  S('י', Y2, 3, 'all', 'מתמטיקה', ['סמדר בכר']),
+  S('י', [4,5], 2, 'A', 'חנ״ג', ['נדב','מעיין']),
+  S('י', [6], 2, 'A',  'אזרחות', ['דני']),
+  S('י', [8], 2, 'A',  'אזרחות', ['נורית']),
+  S('י', [7], 4, 'A',  'היסטוריה', ['שי לזר']),
+
+  // ---- יא ----
+  S('יא', YA1, 0, 'A',   'תקשורת עיוני', ['יוני תורג׳מן']),
+  S('יא', YA1, 1, 'all', 'מתמטיקה 4', ['סיגלית דדון']),
+  S('יא', YA1, 1, 'A',   'חינוך עיוני', ['יוכי בנימין']),
+  S('יא', YA1, 2, 'A',   'מוזיקה', ['ניר וטשטיין']),
+  S('יא', YA1, 2, 'A',   'חינוך', ['יוכי בנימין']),
+  S('יא', YA1, 3, 'all', 'פסיכולוגיה של החינוך', ['יפעת']),
+  S('יא', YA1, 4, 'all', 'פסיכולוגיה', ['יערה צור']),
+  S('יא', YA1, 4, 'all', 'תקשורת הפקות', ['מיכל גרוס','עומר בן נאים']),
+  S('יא', [...YA1,...YA2], 0, 'B', 'רצועה 2'),
+  S('יא', YA2, 0, 'A',   'רצועה 1'),
+  S('יא', YA2, 1, 'all', 'אנגלית', ['טלי סופר','ענת פאלח','ליאור גה בוק','נירה סתו לב רן','גבו שאול','אביבה ברקלי','נוייה גל','שרה וולטון']),
+  S('יא', YA2, 2, 'A',   'פיזיקה (רצועה 2)', ['אורנה שריר']),
+  S('יא', YA2, 2, 'A',   'מוזיקה', ['ניר וטשטיין']),
+  S('יא', YA2, 2, 'B',   'פיזיקה (רצועה 1)', ['אורנה שריר']),
+  S('יא', YA2, 4, 'all', 'מתמטיקה', ['אלונה גוזלן','רונית פרנקל','רוני דולב','הילה בן צור','אפרת צבר','אלה גלוזשטיין']),
+  // רביעי, יא 4–10, שבוע א׳
+  S('יא', [4], 3, 'A', 'ספרות', ['דנה אראל']),
+  S('יא', [5], 3, 'A', 'ספרות', ['דניאלה']),
+  S('יא', [6], 3, 'A', 'ספרות', ['מאיה אלון']),
+  S('יא', [7], 3, 'A', 'היסטוריה', ['שרון']),
+  S('יא', [8], 3, 'A', 'תנ״ך', ['נועה']),
+  S('יא', [9], 3, 'A', 'תנ״ך', ['מיכל']),
+  S('יא', [10],3, 'A', 'תנ״ך', ['צליל']),
+  // רביעי, יא 4–10, שבוע ב׳ (יא 9 ללא שיבוץ)
+  S('יא', [4], 3, 'B', 'ספרות', ['דנה']),
+  S('יא', [5], 3, 'B', 'תנ״ך', ['אוראל']),
+  S('יא', [6], 3, 'B', 'ספרות', ['מאיה']),
+  S('יא', [7], 3, 'B', 'תנ״ך', ['צליל']),
+  S('יא', [8], 3, 'B', 'ספרות', ['דניאלה']),
+  S('יא', [10],3, 'B', 'ספרות', ['יפעת']),
+
+  // ---- יב (זהה בכל השבועות) ----
+  S('יב', YB1, 1, 'all', 'תקשורת עיוני', ['יוני תורג׳מן']),
+  S('יב', YB2, 0, 'all', 'דיפלומטיה', ['נירה סתו לב רן']),
+  S('יב', YB2, 1, 'all', 'רצועה 1'),
+  S('יב', [...YB1,...YB2], 3, 'all', 'רצועה 2'),
+  S('יב', YB2, 4, 'all', 'מתמטיקה', ['הדר לב דמרי','אופיר נוסבאום','חני בהלול','סמדר בכר','גיל אילת','ביבי קרפל','סיגלית דדון','אייל עזרא','מאור קסטרו','שרון דרעי']),
+];
+SESSIONS.forEach((s,i)=> s.id = i);
+
+/* ============ עזרי תאריכים ============ */
+const DAY_MS = 864e5;
+const today = new Date(); today.setHours(0,0,0,0);
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const weekStart = i => addDays(START, i*7);
+const dateOf = (i,day) => addDays(START, i*7+day);
+const fmt = d => `${d.getDate()}.${d.getMonth()+1}`;
+const fmtLong = d => d.toLocaleDateString('he-IL',{day:'numeric',month:'long'});
+const weekType = i => i%2===0 ? 'A' : 'B';
+const typeLabel = t => t==='A' ? 'שבוע א׳' : 'שבוע ב׳';
+const sameDay = (a,b) => a.getTime()===b.getTime();
+const freqLabel = p => p==='all' ? 'כל שבוע' : `רק ב${typeLabel(p)}`;
+
+function currentWeekIndex(){
+  let idx = Math.floor((today - START) / (7*DAY_MS));
+  if (today >= START && today.getDay() >= 5) idx += 1; // שישי/שבת → השבוע הבא
+  return Math.max(0, Math.min(WEEKS-1, idx));
+}
+const NOW_W = currentWeekIndex();
+const inRange = today >= START && today <= dateOf(WEEKS-1,4);
+
+/* ============ שאילתות ============ */
+const applies = (s,w) => s.pattern==='all' || s.pattern===weekType(w);
+const sessionsFor = (grade,num,w,day) =>
+  SESSIONS.filter(s => s.grade===grade && s.day===day && s.classes.includes(num) && applies(s,w));
+
+function compressNums(nums){
+  const a = [...new Set(nums)].sort((x,y)=>x-y); const out=[]; let i=0;
+  while(i<a.length){ let j=i; while(j+1<a.length && a[j+1]===a[j]+1) j++;
+    out.push(j-i>=2 ? `${a[i]}-${a[j]}` : a.slice(i,j+1).join(', ')); i=j+1; }
+  return out.join(', ');
+}
+const classLabel = s => `${s.grade} ${compressNums(s.classes)}`;
+
+function datesOf(s){
+  const out=[];
+  for(let w=0; w<WEEKS; w++) if(applies(s,w)) out.push(dateOf(w,s.day));
+  return out;
+}
+
+/* ============ מצב + שמירה ============ */
+const state = { view:'class', week:NOW_W, grade:'יא', num:4, gridGrade:'all', q:'' };
+try {
+  const saved = JSON.parse(localStorage.getItem('sh78') || '{}');
+  if (saved.grade && CLASSES[saved.grade]?.includes(saved.num)) { state.grade = saved.grade; state.num = saved.num; }
+  if (saved.view) state.view = saved.view;
+} catch(e){}
+// קישור ישיר: #view=class&c=יא-4&q=...
+(function readHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  const v = p.get('view'); if (['class','grid','search'].includes(v)) state.view = v;
+  const c = p.get('c'); if (c){ const [g,n] = c.split('-'); if (CLASSES[g]?.includes(+n)){ state.grade=g; state.num=+n; } }
+  if (p.get('q')) state.q = p.get('q');
+  const w = +p.get('w'); if (w>=1 && w<=WEEKS) state.week = w-1;
+})();
+function persist(){
+  try { localStorage.setItem('sh78', JSON.stringify({grade:state.grade,num:state.num,view:state.view})); } catch(e){}
+  const p = new URLSearchParams({view:state.view});
+  if (state.view==='class') p.set('c', `${state.grade}-${state.num}`);
+  if (state.view==='search' && state.q) p.set('q', state.q);
+  history.replaceState(null,'','#'+p.toString());
+}
+
+/* ============ רינדור ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const gcls = g => `g-${g}`;
+
+function renderTabs(){
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.view===state.view));
+  ['class','grid','search'].forEach(v => $('#v-'+v).hidden = v!==state.view);
+  $('#weekbar').hidden = state.view==='search';
+}
+
+function renderWeek(){
+  const w = state.week, ws = weekStart(w), we = addDays(ws,4);
+  $('#weekTitle').textContent = `${typeLabel(weekType(w))}, ${fmtLong(ws)} עד ${fmtLong(we)}`;
+  let sub = `שבוע ${w+1} מתוך ${WEEKS}`;
+  if (w===NOW_W && inRange) sub += ' (השבוע)';
+  else if (!inRange && today < START && w===0) sub += ' (הלוח מתחיל ב־4.10)';
+  $('#weekSub').textContent = sub;
+  $('#prevW').disabled = w===0; $('#nextW').disabled = w===WEEKS-1;
+  const strip = $('#strip');
+  strip.innerHTML = Array.from({length:WEEKS},(_,i)=>{
+    const t = weekType(i);
+    return `<button class="wk ${t} ${i===NOW_W&&inRange?'now':''}" data-w="${i}" aria-current="${i===w}" aria-label="${typeLabel(t)} ${fmt(weekStart(i))}">
+      <span class="d">${fmt(weekStart(i))}</span><span class="t">${t==='A'?'א׳':'ב׳'}</span></button>`;
+  }).join('');
+  const cur = strip.querySelector('[aria-current="true"]');
+  if (cur) cur.scrollIntoView({block:'nearest', inline:'center', behavior:'auto'});
+}
+
+function renderPicker(){
+  const p = $('#picker');
+  const nums = [...CLASSES[state.grade]].sort((a,b)=>a-b);
+  p.innerHTML = `<div class="grades">${GRADE_ORDER.map(g=>`<button class="${gcls(g)}" data-grade="${g}" aria-pressed="${g===state.grade}">${g}</button>`).join('')}</div>
+    <div class="nums ${gcls(state.grade)}">${nums.map(n=>`<button data-num="${n}" aria-pressed="${n===state.num}">${state.grade} ${n}</button>`).join('')}</div>`;
+}
+
+function teacherChips(ts){
+  return ts.length ? `<div class="tt">${ts.map(t=>`<button class="tchip" data-teacher="${esc(t)}" title="כל השיעורים של ${esc(t)}">${esc(t)}</button>`).join('')}</div>` : '';
+}
+
+function renderClass(){
+  renderPicker();
+  const {grade,num,week} = state;
+  $('#clsName').textContent = `${grade} ${num}`;
+  const total = DAYS.reduce((n,_,d)=> n + (sessionsFor(grade,num,week,d).length?1:0), 0);
+  $('#clsSub').textContent = total ? `${total} ימים עם שיבוץ השבוע` : 'אין שיבוץ בשעות 7-8 השבוע';
+  $('#days').innerHTML = DAYS.map((name,d)=>{
+    const date = dateOf(week,d), list = sessionsFor(grade,num,week,d), isToday = sameDay(date,today);
+    const body = list.length
+      ? list.map(s=>`<div class="lesson ${gcls(grade)}"><div class="s">${esc(s.subject)}</div>${teacherChips(s.teachers)}<span class="freq">${freqLabel(s.pattern)}</span></div>`).join('')
+      : `<div class="empty">אין שיבוץ</div>`;
+    return `<article class="day ${isToday?'today':''}"><header><b>יום ${name}</b><small>${isToday?'<span class="badge-today">היום</span> ':''}${fmt(date)}</small></header>${body}</article>`;
+  }).join('');
+}
+
+function renderGrid(){
+  const f = $('#gfilter');
+  f.innerHTML = [['all','כל השכבות'],...GRADE_ORDER.map(g=>[g,'שכבה '+g])]
+    .map(([k,l])=>`<button data-gg="${k}" aria-pressed="${k===state.gridGrade}">${l}</button>`).join('');
+  const w = state.week;
+  const todayCol = DAYS.map((_,d)=> sameDay(dateOf(w,d),today));
+  let html = `<thead><tr><th class="cls">כיתה</th>${DAYS.map((n,d)=>`<th class="${todayCol[d]?'today':''}">יום ${n}<small>${fmt(dateOf(w,d))}</small></th>`).join('')}</tr></thead>`;
+  const grades = state.gridGrade==='all' ? GRADE_ORDER : [state.gridGrade];
+  for (const g of grades){
+    const cls = CLASSES[g];
+    // מיזוג תאים לפי עמודה: כיתות רצופות עם אותו שיבוץ מתאחדות לתא אחד
+    const cells = cls.map(()=>Array(5).fill(null));
+    for (let d=0; d<5; d++){
+      let i=0;
+      while(i<cls.length){
+        const list = sessionsFor(g,cls[i],w,d), sig = list.map(s=>s.id).join(',');
+        let j=i; while(j+1<cls.length && sessionsFor(g,cls[j+1],w,d).map(s=>s.id).join(',')===sig) j++;
+        cells[i][d] = {span:j-i+1, list};
+        i=j+1;
+      }
+    }
+    html += `<tbody class="${gcls(g)}"><tr class="gsep"><th colspan="6">שכבה ${g}</th></tr>`;
+    cls.forEach((n,ri)=>{
+      html += `<tr><th class="cls">${g} ${n}</th>`;
+      for (let d=0; d<5; d++){
+        const c = cells[ri][d]; if(!c) continue;
+        const inner = c.list.map(s=>`<div class="one"><span class="s">${esc(s.subject)}</span>${s.teachers.length?`<span class="tt">${esc(s.teachers.join(', '))}</span>`:''}</div>`).join('');
+        html += `<td rowspan="${c.span}" class="${c.list.length?'has':''} ${todayCol[d]?'today':''}">${inner}</td>`;
+      }
+      html += `</tr>`;
+    });
+    html += `</tbody>`;
+  }
+  $('#grid').innerHTML = html;
+}
+
+/* חיפוש */
+const norm = s => s.replace(/[״"׳'`]/g,'').replace(/[-–]/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+const ALL_TEACHERS = [...new Set(SESSIONS.flatMap(s=>s.teachers))].sort((a,b)=>a.localeCompare(b,'he'));
+const ALL_SUBJECTS = [...new Set(SESSIONS.map(s=>s.subject))].sort((a,b)=>a.localeCompare(b,'he'));
+function hl(text,q){
+  if(!q) return esc(text);
+  const n = norm(text); const idx = n.indexOf(q);
+  if (idx<0 || n.length!==text.length) return esc(text); // הדגשה רק כשאין סימני פיסוק שמשנים אורך
+  return esc(text.slice(0,idx))+'<mark>'+esc(text.slice(idx,idx+q.length))+'</mark>'+esc(text.slice(idx+q.length));
+}
+function renderSearch(){
+  $('#suggest').innerHTML = [...ALL_TEACHERS,...ALL_SUBJECTS].map(x=>`<option value="${esc(x)}">`).join('');
+  $('#quick').innerHTML = ['מתמטיקה','אנגלית','ספרות','תנ״ך','פסיכולוגיה','תקשורת','רצועה'].map(x=>`<button data-quick="${esc(x)}">${esc(x)}</button>`).join('');
+  if ($('#q').value !== state.q) $('#q').value = state.q;
+  const q = norm(state.q);
+  const box = $('#results');
+  if (!q){ $('#count').textContent=''; box.innerHTML = `<div class="emptystate">הקלידו שם של מורה או מקצוע כדי לראות באילו כיתות, באיזה יום ובאילו שבועות מתקיים השיעור.</div>`; return; }
+  const found = SESSIONS.filter(s => norm(s.subject).includes(q) || s.teachers.some(t=>norm(t).includes(q)))
+    .sort((a,b)=> GRADE_ORDER.indexOf(a.grade)-GRADE_ORDER.indexOf(b.grade) || a.day-b.day);
+  $('#count').textContent = found.length ? `${found.length} שיבוצים` : '';
+  if (!found.length){ box.innerHTML = `<div class="emptystate">לא נמצא שיבוץ עבור "${esc(state.q)}". נסו חלק מהשם, למשל שם פרטי בלבד.</div>`; return; }
+  box.innerHTML = found.map(s=>{
+    const dates = datesOf(s), next = dates.find(d=>d>=today);
+    return `<article class="res ${gcls(s.grade)}">
+      <div class="s">${hl(s.subject,q)}</div>
+      <div class="meta"><span class="pill">${esc(classLabel(s))}</span><span class="pill">יום ${DAYS[s.day]}</span><span class="pill">${freqLabel(s.pattern)}</span></div>
+      ${s.teachers.length?`<div class="tt">${s.teachers.map(t=>hl(t,q)).join(', ')}</div>`:''}
+      <div class="next">${next ? `הפעם הבאה: <b>${fmtLong(next)}</b>` : 'לא נותרו מפגשים במחצית'}</div>
+      <details><summary>כל ${dates.length} התאריכים</summary><div class="dates">${dates.map(d=>`<span class="${d<today?'past':''}">${fmt(d)}</span>`).join('')}</div></details>
+    </article>`;
+  }).join('');
+}
+
+function render(){
+  renderTabs();
+  if (state.view!=='search') renderWeek();
+  if (state.view==='class') renderClass();
+  if (state.view==='grid') renderGrid();
+  if (state.view==='search') renderSearch();
+  persist();
+}
+
+/* ============ אירועים ============ */
+document.querySelector('.tabs').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-view]'); if(!b) return; state.view = b.dataset.view; render();
+});
+$('#strip').addEventListener('click', e=>{ const b=e.target.closest('[data-w]'); if(b){ state.week=+b.dataset.w; render(); }});
+$('#prevW').onclick = ()=>{ if(state.week>0){state.week--; render();} };
+$('#nextW').onclick = ()=>{ if(state.week<WEEKS-1){state.week++; render();} };
+$('#nowW').onclick  = ()=>{ state.week=NOW_W; render(); };
+$('#picker').addEventListener('click', e=>{
+  const g = e.target.closest('[data-grade]'), n = e.target.closest('[data-num]');
+  if (g && g.dataset.grade!==state.grade){ state.grade=g.dataset.grade; state.num=[...CLASSES[state.grade]].sort((a,b)=>a-b)[0]; render(); }
+  if (n){ state.num=+n.dataset.num; render(); }
+});
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-teacher]'); if(t){ state.q=t.dataset.teacher; state.view='search'; render(); window.scrollTo({top:0}); }
+  const q = e.target.closest('[data-quick]'); if(q){ state.q=q.dataset.quick; render(); }
+});
+$('#gfilter').addEventListener('click', e=>{ const b=e.target.closest('[data-gg]'); if(b){ state.gridGrade=b.dataset.gg; render(); }});
+$('#q').addEventListener('input', e=>{ state.q=e.target.value; renderSearch(); persist(); });
+$('#clearQ').onclick = ()=>{ state.q=''; $('#q').value=''; renderSearch(); persist(); $('#q').focus(); };
+document.addEventListener('keydown', e=>{
+  if (state.view==='search' || e.target.matches('input')) return;
+  // RTL: חץ שמאלה = הבא, חץ ימינה = הקודם
+  if (e.key==='ArrowLeft' && state.week<WEEKS-1){ state.week++; render(); }
+  if (e.key==='ArrowRight' && state.week>0){ state.week--; render(); }
+});
+
+render();
+</script>
+</body>
+</html>
