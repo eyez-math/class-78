@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#F4F6FA; --surface:#FFFFFF; --ink:#1E2433; --muted:#5E6679; --line:#DCE1EB;
@@ -213,8 +214,8 @@ table.grid{table-layout:fixed;border-collapse:separate;border-spacing:0;width:10
 <script>
 /* ================= הגדרות ================= */
 const CONFIG = {
-  // כתובת ה-Web App של Apps Script (מסתיימת ב-/exec)
-  SCRIPT_URL: 'PASTE_SCRIPT_URL_HERE',
+  // מזהה הגיליון (פתוח לצפייה לכל מי שיש לו קישור)
+  SHEET_ID: '1qs0BtxWKtz_8YjoNetPK6zQWQzUPh_ksb6IzaK-Q_uo',
   // שנת תחילת שנת הלימודים: חודשים ספטמבר-דצמבר = השנה הזו, ינואר-אוגוסט = השנה הבאה
   SCHOOL_YEAR: 2026,
   CACHE_KEY: 'sh78-data-v2'
@@ -529,15 +530,18 @@ async function load(){
   let cached = null;
   try { cached = JSON.parse(localStorage.getItem(CONFIG.CACHE_KEY) || 'null'); } catch(e){}
   if (cached) applyData(cached, true); else setStatus('טוען מהגיליון…');
-  if (!/^https:\/\//.test(CONFIG.SCRIPT_URL)){
-    showSetup('צריך להדביק את כתובת ה־Web App של Apps Script בקוד, בשורה <code>SCRIPT_URL</code>.');
-    setStatus(''); return;
-  }
   try {
-    const res = await fetch(CONFIG.SCRIPT_URL, {cache:'no-store'});
+    // הורדת הגיליון כקובץ Excel: כולל את כל הלשוניות ואת התאים הממוזגים
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=xlsx`, {cache:'no-store'});
     if (!res.ok) throw new Error('HTTP '+res.status);
-    const json = await res.json();
-    if (!json.sheets) throw new Error('תשובה לא צפויה');
+    const wb = XLSX.read(await res.arrayBuffer(), {type:'array'});
+    const hidden = new Set((wb.Workbook?.Sheets||[]).filter(s=>s.Hidden).map(s=>s.name));
+    const json = { updated: new Date().toISOString(), sheets: wb.SheetNames.filter(n=>!hidden.has(n)).map(name => {
+      const ws = wb.Sheets[name];
+      return { name,
+        values: XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:'', blankrows:true}).map(r=>r.map(v=>String(v))),
+        merges: (ws['!merges']||[]).map(m => [m.s.r, m.s.c, m.e.r-m.s.r+1, m.e.c-m.s.c+1]) };
+    })};
     try { localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(json)); } catch(e){}
     applyData(json, false);
   } catch(err){
